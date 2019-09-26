@@ -1,7 +1,10 @@
 const mongo = require('mongodb').MongoClient;
 const client = require ('socket.io').listen(4000).sockets;
 
-mongo.connect('mongodb://127.0.0.1/mongochat', function(err,db) {
+
+
+
+mongo.connect('mongodb://127.0.0.1/chat',{useUnifiedTopology: true, useNewUrlParser: true}, function(err,db) {
     if(err) {
         throw err;
     }
@@ -14,6 +17,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err,db) {
         sendStatus = function(s) {
             socket.emit('status',s);
         }
+        
         chat.find().limit(100).sort({_id:1}).toArray(function(err, res) {
             if(err) {
                 throw err;
@@ -28,7 +32,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err,db) {
             let name = data.name;
             let message = data.message;
 
-            if(name==''||message=='') {
+            if(name == ''|| message == '') {
                 sendStatus('please enter name,mess')
             }
             else {

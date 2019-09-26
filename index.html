@@ -22,7 +22,8 @@
         </h1>
         <div id="status"></div> 
         <div id ="chat"> 
-            <input type ="text" id ="username" class="form-control" placeholder="Enter name"> 
+            <input type ="text" id ="username" class="form-control" placeholder="Enter name">
+            <br> 
             <div class="card">
                 <div id="messages" class="card-block">
 
@@ -34,7 +35,8 @@
         </div>
 
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js">
+    <script 
+    src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js">
     </script> 
     <script>
         (function(){
@@ -47,6 +49,11 @@
             var username = element('username');
             var clearBtn = element('clear');
 
+            
+
+            var statusDefault = status.textContent;
+
+
             var setStatus = function(s) {
             status.textContent = s;
 
@@ -58,13 +65,13 @@
         }
         var socket = io.connect('http://127.0.0.1:4000');
 
-        if(socket!== undefined) {
+        if(socket !== undefined) {
             console.log('Connected to soket.');
             socket.on('output', function(data){
                // console.log(data);
                if(data.length) {
                    for(var x =0;x < data.length;x++){
-                       var message =document.createElement('div');
+                       var message = document.createElement('div');
                        message.setAttribute('class', 'chat-message');
                        message.textContent = data[x].name+": "+data
                        [x].messages;
