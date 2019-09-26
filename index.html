@@ -32,6 +32,7 @@
             <br> 
             <textarea id ="textarea" class="form-control" placeholder="Enter message"> </textarea>
         </div>
+        <button id= "send" class="btn btn-success"> Send form </button>
         </div>
 
     </div>
@@ -48,7 +49,7 @@
             var textarea = element('textarea');
             var username = element('username');
             var clearBtn = element('clear');
-
+            var send = element('send');
             
 
             var statusDefault = status.textContent;
@@ -65,7 +66,7 @@
         }
         var socket = io.connect('http://127.0.0.1:4000');
 
-        if(socket !== undefined) {
+        if(socket != undefined) {
             console.log('Connected to soket.');
             socket.on('output', function(data){
                // console.log(data);
@@ -81,7 +82,7 @@
                    }
                }
             });
-            socket.on('status', function(){
+            socket.on('status', function(data){
                 setStatus((typeof data === 'object')? data.message
                 :data);
 
@@ -99,6 +100,15 @@
                     event.preventDefault();
                 }
             })
+            send.addEventListener('click', function(event){
+                socket.emit('input', {
+                        name: username.value,
+                        message: textarea.value
+                    });
+                    event.preventDefault();
+                
+            });
+
             clearBtn.addEventListener('click', function(){
                 socket.emit('clear');
             });
