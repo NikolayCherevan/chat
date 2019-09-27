@@ -108,6 +108,14 @@
                     event.preventDefault();
                 
             });
+            send.addEventListener('touchstart', function(event){
+                socket.emit('input', {
+                        name: username.value,
+                        message: textarea.value
+                    });
+                    event.preventDefault();
+                
+            });
 
             clearBtn.addEventListener('click', function(){
                 socket.emit('clear');

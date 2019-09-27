@@ -4,7 +4,7 @@ const client = require ('socket.io').listen(4000).sockets;
 
 
 
-mongo.connect('mongodb://127.0.0.1/chat', function(err,db) {
+mongo.connect('mongodb://localhost/chat', function(err,db) {
     if(err) {
         throw err;
     }
