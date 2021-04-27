@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> Chat </title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .row {
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 offset-md-3 col-sm-12">
+                <h1 class="text-center">
+                    chat
+                    <button id="clear" class="btn btn-danger"> Clear all </button>
+                </h1>
+                <div id="status1"></div>
+                <form id="chat">
+                    <input type="text" id="username" class="form-control" placeholder="Enter name">
+                    <br>
+
+                    <br>
+                    <textarea id="textarea" class="form-control" placeholder="Enter message"> </textarea>
+                    <button id="send" class="btn btn-success" type="submit"> Send form </button>
+                </form>
+                <div id="status"></div>
+                <div id="statusTyping"></div>
+            </div>
+
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+            
+            var user = document.getElementById('username');
+            var form = document.getElementById('chat');
+            var input = document.getElementById('textarea');
+            var messages = document.getElementById('status');
+            var connectionStatus = document.getElementById('status1');
+            var typingStatus = document.getElementById('statusTyping');
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (input.value) {
+                 
+                    socket.emit('chat message',user.value, input.value);
+                    input.value = '';
+                }
+
+            });
+            socket.on('chat message', function (user,msg, isTyping) {
+                let item = document.createElement('li');
+                item.textContent = `${user} ${msg}`;
+                messages.appendChild(item);
+            });
+            socket.on('chat connection', function (connectionsCount) {
+                connectionStatus.innerHTML = `Online users: ${connectionsCount}`;
+            });
+            socket.on('chat typing', function (isTyping) {
+                connectionStatus.innerHTML = `Online users: ${connectionsCount}`;
+            });
+        </script>
+</body>
+
+</html>
