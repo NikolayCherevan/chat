@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> Chat </title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .row {
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 offset-md-3 col-sm-12">
+                <h1 class="text-center">
+                    chat
+
+                </h1>
+                <div id="status1"></div>
+                <span> В чате сейчас: </span><span id="listUsers"></span>
+                <div id="statusUser"></div>
+                <form id="chat">
+                    <input type="text" id="username" class="form-control" placeholder="Enter name">
+                    <br>
+
+                    <br>
+                    <textarea id="textarea" class="form-control" placeholder="Enter message"
+                        oninput="isTyping()"></textarea>
+                    <button id="send" class="btn btn-success" type="submit" style="margin-top: 10px;"> Send form
+                    </button>
+                </form>
+                <div id="status"></div>
+
+                <div id="statusTyping"></div>
+            </div>
+
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+            var connections = 0;
+            var user = document.getElementById('username');
+            var form = document.getElementById('chat');
+            var input = document.getElementById('textarea');
+            var messages = document.getElementById('status');
+            var connectionStatus = document.getElementById('status1');
+            var typingStatus = document.getElementById('statusTyping');
+            var usersStatus = document.getElementById('statusUser');
+            var usersList = document.getElementById('listUsers');
+            let nikName = ''
+            let users = []
+            function isTyping() {
+                if (user.value) {
+                    if (!usersStatus.textContent.includes(user.value)) {
+                        socket.emit('chat typing', user.value, true);
+                    }
+                }
+            }
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (input.value !== '') {
+                    socket.emit('chat message', user.value, input.value);
+                    input.value = '';
+                }
+                else {
+                    alert('write something')
+                }
+            });
+            socket.on('chat message', function (user, msg) {
+                let item = document.createElement('li');
+                item.textContent = `${user} ${msg}`;
+                messages.appendChild(item);
+            });
+
+
+            socket.on('chat connection', function (connectionsCount) {
+
+                if (user.value === '') {
+                    nikName = prompt('Enter nick, if nik consist, u must reenter it');
+                    while (!nikName) {
+                        nikName = prompt('reenter it')
+                    }
+                    user.value = nikName;
+                    user.disabled = true;
+
+                }
+
+                connectionStatus.innerHTML = `Online users: ${connectionsCount}`;
+                let userName = user.value;
+                let status = true
+                if (nikName) {
+                    socket.emit('chat userStatus', nikName, status)
+                }
+                socket.emit('user plus', nikName, status);
+            });
+            socket.on('chat disconnect', function (connectionsCount, id) {
+                usersList.innerHTML = ``;
+                let indexOfRemovingUser = null;
+                users.forEach((item,index)=> {
+                    if(item.id === id){
+                        users.splice(index,1);
+                        usersStatus.innerHTML = `${item.name} отключился`
+                        setTimeout(() => usersStatus.innerHTML = ``, 2000)
+                    }
+                })
+                connectionStatus.innerHTML = `Online users: ${connectionsCount}`;
+                users.filter(item => {
+                    if (item.id !== id) {
+                        usersList.innerHTML += ` ${item.name}`
+                    }
+                })
+            });
+            socket.on('chat typing', function (userName, status) {
+
+                if (status && user.value !== userName) {
+                    typingStatus.innerHTML = `${userName} is typing`;
+                }
+                setTimeout(function () {
+                    status = false
+                    if (!status) {
+                        typingStatus.innerHTML = ``;
+
+                    }
+                }, 2000)
+            });
+
+            socket.on('chat userStatus', function (user, status) {
+                if (status) {
+                    usersStatus.innerHTML = `${user} подключился`
+                    setTimeout(() => usersStatus.innerHTML = ``, 2000)
+                }
+            });
+            socket.on('user plus', function (userName, status, connectionId) {
+                if (!usersList.textContent.includes(userName)) {
+                    users.push({ name: userName, id: connectionId })
+                }
+
+                users.filter(item => {
+                    if (status) {
+                        if (!usersList.innerHTML.includes(item.name)) {
+                            usersList.innerHTML += ` ${item.name}`
+                        }
+                    }
+                })
+            });
+
+        </script>
+</body>
+
+</html>

@@ -10,8 +10,10 @@ module.exports = [
             path: __dirname + '/dist/server',
             filename: 'bundle.js',
         },
-        externals: ['express']
+        externals: ['express'],
+        testEnvironment: 'node'
     },
+    
     // {
     //     name: 'client',
     //     entry: './src/client.js',
